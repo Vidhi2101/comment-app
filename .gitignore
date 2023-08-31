@@ -1,20 +1,17 @@
 # Compiled class file
 *.class
-idea/*
-idea/
 target/
 # Log file
 *.log
-.idea/misc.xml
-.gitignore.swp
-.idea/compiler.xml
 # BlueJ files
 *.ctxt
-*.gitignore*
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 target/
-idea
+.idea
+.idea/*
+
 *.*/*.xml
 # Package Files #
 *.jar
