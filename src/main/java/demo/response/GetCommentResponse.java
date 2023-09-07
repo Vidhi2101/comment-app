@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class GetCommentResponse {
-    private List<Comment> comments;
+    private List<CommentResponse> comments;
     private int pageNo;
     private int pageSize;
     private long totalElements;
