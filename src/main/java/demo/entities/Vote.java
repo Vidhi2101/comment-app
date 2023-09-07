@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,39 +13,41 @@ import java.sql.Types;
 import java.util.Date;
 import java.util.UUID;
 
-@Table(name = "comment")
+@Table(name = "vote")
 @Entity
 @Setter
 @Getter
 @ToString
-public class Comment {
+public class Vote {
 
-    @Column(nullable = false, name = "id")
+//    @Column(nullable = false, name = "id")
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.UUID)
+//    @JdbcTypeCode(Types.VARCHAR)
+//    private UUID id;
+//    @Transient
+//    private UUID postUuid; // Represents the Post UUID
+//
+//    private UUID commentUuid;
+
+    @Column(name = "attribute_id")
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @JdbcTypeCode(Types.VARCHAR)
-    private UUID id;
-
-    @Column(name = "parent_id")
-    private UUID parentId;
-
-    @Column(length = 200, nullable = false)
-    private String metadata;
-
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "post_id", referencedColumnName = "id")
-    private Post post;
-
-    @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
-    private Date createdAt;
+    @Formula("(CASE WHEN post_id IS NOT NULL THEN post_id ELSE comment_id END)")
+    private UUID attributeId;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
+    private int voteType;
+
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private Date createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updatedAt;
+
 }

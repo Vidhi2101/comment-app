@@ -6,12 +6,16 @@ import demo.entities.Post;
 import demo.exceptions.UserNotFoundException;
 import demo.requests.CreatePostRequest;
 import demo.response.GetPostResponse;
+import demo.response.PostResponse;
 import demo.services.PostService;
 import demo.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.concurrent.CompletionStage;
+import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/v1/post")
@@ -26,9 +30,10 @@ public class PostController {
     }
 
     @PostMapping("/create")
-    public CompletionStage<Post> createPost(@RequestBody CreatePostRequest createPostRequest) throws Exception{
+    public ResponseEntity<Post> createPost(@RequestBody CreatePostRequest createPostRequest) throws Exception{
        try {
-           return postService.createPost(createPostRequest);
+           Post post  = postService.createPost(createPostRequest);
+           return new ResponseEntity<>(post, HttpStatus.CREATED);
        }catch (UserNotFoundException e){
            throw new UserNotFoundException("User is not present");
        }catch(Exception e){
@@ -36,27 +41,31 @@ public class PostController {
        }
     }
 
-//    @GetMapping("/getByUserId")
-//    public CompletionStage<List<Post>> getPostsByUserId(@RequestParam(value = "userId", required = true) Integer userId) {
-//
-//        try {
-//            return  postService.getPostsByUserId(userId);
-//        }catch (UserNotFoundException e) {
-//            throw new UserNotFoundException("User is not present");
-//        }catch(Exception e){
-//            throw new RuntimeException("Unknown exception");
-//        }
-//    }
 
-    @GetMapping("/getByUserId")
+    @GetMapping("/getPost/{postId}")
+    public PostResponse getAllPosts(
+            @PathVariable UUID postId) {
+        try {
+            return postService.getPostById(postId);
+        } catch (UserNotFoundException e) {
+            throw new UserNotFoundException("User is not present");
+        } catch (Exception e) {
+            throw new RuntimeException("Unknown exception");
+        }
+    }
+
+    //you can write query for multiple level of comments as well. for now, havw written it for one level of comment
+
+    @GetMapping("/getByUserId/{userId}")
     public GetPostResponse getAllPosts(
+            @PathVariable UUID userId,
+            @RequestParam(value = "includeComment", required = false) boolean includeComment,
             @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir,
-            @RequestParam(value = "userId" ) Integer userId){
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir){
         try {
-            return postService.getAllPosts(pageNo, pageSize, sortBy, sortDir, userId);
+            return postService.getAllPosts(pageNo, pageSize, sortBy, sortDir, userId,includeComment);
         }catch (UserNotFoundException e) {
             throw new UserNotFoundException("User is not present");
         }catch(Exception e){

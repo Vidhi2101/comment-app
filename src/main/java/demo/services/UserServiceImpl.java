@@ -10,8 +10,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import java.util.UUID;
+
 
 @Service
 public class UserServiceImpl  implements UserService{
@@ -24,23 +24,23 @@ public class UserServiceImpl  implements UserService{
 
     @Transactional
     @Override
-    public CompletionStage<User> createUser(User user){
+    public User createUser(User user){
         try {
-            return CompletableFuture.completedFuture(userRepository.save(user));
+            return userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateUserException("Duplicate entry for username: " + user.getUserName());
         }
     }
 
     @Override
-    public CompletionStage<User> getUserById(Integer user){
-        return CompletableFuture.completedFuture(userRepository.findById(user).orElseThrow(() -> new UserNotFoundException("No user found")));
+    public User getUserById(UUID user){
+        return userRepository.findById(user).orElseThrow(() -> new UserNotFoundException("No user found"));
 
     }
 
     @Override
-    public CompletionStage<User> getUser(String user){
-        return CompletableFuture.completedFuture(userRepository.findByUserName(user).orElseThrow(() -> new UserNotFoundException("No user found")));
+    public User getUser(String user){
+        return userRepository.findByUserName(user).orElseThrow(() -> new UserNotFoundException("No user found"));
     }
 
 

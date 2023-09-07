@@ -6,9 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.sql.Types;
 import java.util.Date;
+import java.util.UUID;
 
 @Table(name = "post")
 @Entity
@@ -16,10 +19,11 @@ import java.util.Date;
 @Getter
 @ToString
 public class Post {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false, name = "id")
-    private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID id;
 
     @Column(length = 1000, nullable = false, name = "metadata")
     private String metaData;
