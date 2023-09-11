@@ -43,9 +43,10 @@ public class CommentServiceImpl implements  CommentService {
 
     @Override
     public GetCommentResponse getCommentByPostIdAndParentId(int pageNo, int pageSize, String sortBy, String sortDir, UUID parentCommentId, UUID postId) {
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-
+        //TODO:: same mistake fix here as well
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by("createdAt").ascending()
+                : Sort.by("createdAt").descending();
+        // TODO: copy paste the while loop from post here as well.
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         Page<Comment> comments = commentRepository.findByParentIdAndPostId(pageable, parentCommentId, postId);
 

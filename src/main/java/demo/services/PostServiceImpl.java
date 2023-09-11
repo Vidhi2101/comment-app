@@ -13,6 +13,7 @@ import demo.response.GetPostResponse;
 import demo.response.PostResponse;
 import demo.response.mapper.PostMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @AllArgsConstructor
+@Slf4j
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -60,13 +63,20 @@ public class PostServiceImpl implements PostService {
     public GetPostResponse getAllPosts(int pageNo, int pageSize, String sortBy, String sortDir, UUID userId, boolean includeComment) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
+        //TODO:: fix this created_at is wrong you need to provide hibernate name not the sql column name
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by("createdAt").ascending()
+                : Sort.by("createdAt").descending();
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        Page<Post> posts = postRepository.findAllByUserId(pageable, userId);
-        List<PostResponse> listOfPosts = posts.getContent().stream()
-                .map(e -> postMapper.mapToResponse(e, includeComment ? commentRepository.findByParentIdAndPostId(null,e.getId()) : Collections.emptyList())).collect(Collectors.toList());;
+        Page<Post>posts;
+        List<PostResponse> listOfPosts = new ArrayList<>();
+        do {
+            Pageable pageable = PageRequest.of(pageNo, pageSize,sort);
+            posts = postRepository.findPostsByUserId(user.getId(), pageable);
+            List<PostResponse> itr = posts.getContent().stream()
+                    .map(e -> postMapper.mapToResponse(e, includeComment ? commentRepository.findByParentIdAndPostId(null,e.getId()) : Collections.emptyList())).collect(Collectors.toList());
+            listOfPosts.addAll(itr);
+            pageNo = pageNo + 1;
+        }while(!posts.isEmpty());
 
         return GetPostResponse.builder()
                 .postList(listOfPosts)

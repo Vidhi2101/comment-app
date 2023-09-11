@@ -33,10 +33,10 @@ public class Post {
     private User user;
 
     @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
+    @Column(updatable = false)
     private Date createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column
     private Date updatedAt;
 }
