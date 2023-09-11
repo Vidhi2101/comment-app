@@ -1,4 +1,4 @@
-package demo.requests;
+package demo.model.request;
 
 
 import demo.entities.Comment;
@@ -15,9 +15,9 @@ import java.util.UUID;
 @NoArgsConstructor
 public class CreateCommentRequest {
     private String metaData;
-    private UUID postId;
-    private UUID parentCommentId;
-    private UUID userId;
+    private String postId;
+    private String parentCommentId;
+    private String userId;
 
     public Comment toComment(String metaData, Post post, UUID parentCommentId, User user){
         Comment comment = new Comment();

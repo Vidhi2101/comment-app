@@ -2,11 +2,13 @@ package demo.controller;
 
 
 import demo.AppConstants;
-import demo.entities.Comment;
+import demo.exceptions.BadRequestException;
 import demo.exceptions.PostNotFoundException;
 import demo.exceptions.UserNotFoundException;
-import demo.requests.CreateCommentRequest;
-import demo.response.GetCommentResponse;
+import demo.model.request.CreateCommentRequest;
+import demo.model.response.CommentResponse;
+import demo.model.response.GetCommentResponse;
+import demo.model.response.GetPaginatedCommentResponse;
 import demo.services.CommentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/comment")
@@ -28,33 +30,47 @@ public class CommentController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Comment> createComment(@RequestBody CreateCommentRequest createCommentRequest) throws Exception{
+    public ResponseEntity<?> createComment(@RequestBody CreateCommentRequest createCommentRequest) throws Exception{
         try{
-            Comment comment = commentService.createComment(createCommentRequest);
+            CommentResponse comment = commentService.createComment(createCommentRequest);
             return new ResponseEntity<>(comment, HttpStatus.CREATED);
-        }catch (PostNotFoundException e){
-            throw new PostNotFoundException("Post not found");
+        }catch (PostNotFoundException | UserNotFoundException  | BadRequestException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }catch (Exception e){
-            throw new RuntimeException("Unknown exception");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
 
     }
 
     @GetMapping("/viewComments/{postId}")
-    public GetCommentResponse getComments(
-            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+    public ResponseEntity<?> getComments(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
             @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir,
-            @RequestParam(value = "commentId", required = false) UUID commentId,
-            @RequestParam(value = "replyCount", required = false) Integer replyCount,
-            @PathVariable(value = "postId") UUID postId){
+            @RequestParam(value = "commentId", required = false) String commentId,
+            @PathVariable(value = "postId") String postId){
         try {
-            return commentService.getCommentByPostIdAndParentId(pageNo, pageSize, sortBy, sortDir, commentId, postId);
-        }catch (UserNotFoundException e) {
-            throw new UserNotFoundException("User is not present");
+            GetPaginatedCommentResponse response = commentService.getCommentByPostIdAndParentId(pageNo, pageSize, sortDir, commentId, postId);
+            return new  ResponseEntity<>(response, HttpStatus.CREATED);
+        }catch (PostNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }catch(Exception e){
-            throw new RuntimeException("Unknown exception");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+        }
+    }
+
+    @GetMapping("/viewReplies/postId/{postId}/parentId/{commentId}")
+    public ResponseEntity<?> getReplies(
+            @PathVariable(value = "postId", required = false) String postId,
+            @RequestParam(value = "replyCount", defaultValue = "10", required = false) Integer replyCount,
+            @PathVariable(value = "commentId") String commentId){
+        try {
+            List<GetCommentResponse> response = commentService.getReplies(commentId, postId, replyCount);
+            return new  ResponseEntity<>(response, HttpStatus.CREATED);
+        }catch (PostNotFoundException | BadRequestException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
 

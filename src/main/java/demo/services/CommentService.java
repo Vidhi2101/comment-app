@@ -2,15 +2,18 @@ package demo.services;
 
 
 import demo.entities.Comment;
-import demo.requests.CreateCommentRequest;
-import demo.response.GetCommentResponse;
+import demo.model.request.CreateCommentRequest;
+import demo.model.response.CommentResponse;
+import demo.model.response.GetCommentResponse;
+import demo.model.response.GetPaginatedCommentResponse;
 
-import java.util.UUID;
+import java.util.List;
 
 public interface CommentService {
 
-     Comment createComment(CreateCommentRequest createCommentRequest);
+     CommentResponse createComment(CreateCommentRequest createCommentRequest);
 
-     GetCommentResponse getCommentByPostIdAndParentId(int pageNo, int pageSize, String sortBy, String sortDir, UUID parentCommentId, UUID postId);
+     GetPaginatedCommentResponse getCommentByPostIdAndParentId(int pageNo, int pageSize, String sortDir, String parentCommentId, String postId);
 
+     List<GetCommentResponse> getReplies(String commentId, String postId, int replyCount);
 }

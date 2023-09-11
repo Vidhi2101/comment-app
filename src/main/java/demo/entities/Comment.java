@@ -26,6 +26,7 @@ public class Comment {
     private UUID id;
 
     @Column(name = "parent_id")
+    @JdbcTypeCode(Types.VARCHAR)
     private UUID parentId;
 
     @Column(length = 200, nullable = false)

@@ -1,6 +1,5 @@
-package demo.response;
+package demo.model.response;
 
-import demo.entities.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,8 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GetPostResponse {
-    private List<PostResponse> postList;
+public class GetPaginatedCommentResponse {
+    private List<GetCommentResponse> comments;
     private int pageNo;
     private int pageSize;
     private long totalElements;

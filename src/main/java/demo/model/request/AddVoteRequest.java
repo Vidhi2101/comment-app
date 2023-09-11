@@ -1,29 +1,19 @@
-package demo.requests;
+package demo.model.request;
 
 
 import demo.entities.*;
-import demo.exceptions.BadRequestException;
-import demo.repositories.CommentRepository;
-import demo.repositories.PostRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @AllArgsConstructor
 @Data
 public class AddVoteRequest {
 
-    @Autowired
-    CommentRepository commentRepository;
-    @Autowired
-    PostRepository postRepository;
-
-    private UUID attributeId;
+    private String attributeId;
     private int voteType;
-    private UUID userId;
+    private String userId;
 
     public Vote toVote(UUID attributeId, int voteType,User user){
 

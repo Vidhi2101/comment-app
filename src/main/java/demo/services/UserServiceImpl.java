@@ -1,10 +1,16 @@
 package demo.services;
 
 
+import demo.AppConstants;
 import demo.entities.User;
+import demo.exceptions.BadRequestException;
 import demo.exceptions.DuplicateUserException;
 import demo.exceptions.UserNotFoundException;
+import demo.model.response.UserResponse;
+import demo.model.response.mapper.UserMapper;
 import demo.repositories.UserRepository;
+import demo.model.request.CreateUserRequest;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -24,30 +30,39 @@ public class UserServiceImpl  implements UserService{
 
     @Transactional
     @Override
-    public User createUser(User user){
+    public UserResponse createUser(CreateUserRequest request){
         try {
-            return userRepository.save(user);
-        } catch (DataIntegrityViolationException e) {
-            throw new DuplicateUserException("Duplicate entry for username: " + user.getUserName());
+            if (request == null || request.getName() == null)  {
+                throw new BadRequestException("Invalid input: username is required.");
+            }
+            User user = userRepository.save(request.toUser());
+            return UserMapper.mapToResponse(user);
+
+            //TODO: its not throwing duplicate exception, fix me
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            throw new DuplicateUserException("Duplicate user");
         }
     }
 
     @Override
-    public User getUserById(UUID user){
-        return userRepository.findById(user).orElseThrow(() -> new UserNotFoundException("No user found"));
-
+    public UserResponse getUserById(String userId){
+        User user = userRepository.findById(convertToUUID(userId)).orElseThrow(() -> new UserNotFoundException("No user found"));
+        return UserMapper.mapToResponse(user);
     }
 
     @Override
-    public User getUser(String user){
-        return userRepository.findByUserName(user).orElseThrow(() -> new UserNotFoundException("No user found"));
+    public UserResponse getUser(String user){
+        User userResponse =  userRepository.findByUserName(user).orElseThrow(() -> new UserNotFoundException("No user found"));
+        return UserMapper.mapToResponse(userResponse);
     }
 
+    private UUID convertToUUID(String id){
+        try {
+            return AppConstants.convertToUUID(id);
+        }catch (IllegalArgumentException ex){
+            throw new BadRequestException("Parameter is incorrect");
+        }
+    }
 
-//    public void updateUser(Integer userId){
-//        User user = userRepository.getById(userId);
-//        user.setLoggedInAt(System.currentTimeMillis());
-//        return userRepository.save(user);
-//    }
 
 }

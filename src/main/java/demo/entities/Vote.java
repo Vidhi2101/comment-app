@@ -20,17 +20,9 @@ import java.util.UUID;
 @ToString
 public class Vote {
 
-    @Column(nullable = false, name = "id")
-    @GeneratedValue
-    @Id
-    private Long id;
-//    @Transient
-//    private UUID postUuid; // Represents the Post UUID
-//
-//    private UUID commentUuid;
-
     @Column(name = "attribute_id")
     @JdbcTypeCode(Types.VARCHAR)
+    @Id
     @Formula("(CASE WHEN post_id IS NOT NULL THEN post_id ELSE comment_id END)")
     private UUID attributeId;
 

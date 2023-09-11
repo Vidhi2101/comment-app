@@ -4,9 +4,7 @@ package demo.controller;
 import demo.entities.Vote;
 import demo.exceptions.BadRequestException;
 import demo.exceptions.UserNotFoundException;
-import demo.requests.AddVoteRequest;
-import demo.response.VoteResponse;
-import demo.services.UserService;
+import demo.model.request.AddVoteRequest;
 import demo.services.VoteService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/vote")
@@ -25,32 +22,28 @@ public class VoteController {
 
     @Autowired
     private final VoteService voteService;
-    @Autowired
-    private final UserService userService;
 
 
     @PostMapping("/add")
-    public ResponseEntity<Vote> addVote(@RequestBody AddVoteRequest addVoteRequest) throws Exception{
+    public ResponseEntity<?> addVote(@RequestBody AddVoteRequest addVoteRequest) throws Exception{
         try {
             Vote vote  = voteService.addVote(addVoteRequest);
-            return new ResponseEntity<>(vote, HttpStatus.CREATED);
-        }catch (UserNotFoundException e){
-            throw new UserNotFoundException("User is not present");
-        }catch (BadRequestException e){
-            throw new BadRequestException("Invalid request");
+            return new ResponseEntity<>(vote.getAttributeId(), HttpStatus.CREATED);
+        }catch (UserNotFoundException  | BadRequestException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }catch(Exception e){
-            throw new RuntimeException("Unknown exception");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
 
     @GetMapping("/getVotes/{attributeId}")
-    public ResponseEntity<VoteResponse> getVotes(@PathVariable UUID attributeId) throws Exception{
+    public ResponseEntity<?> getVotes(@PathVariable String attributeId) throws Exception{
         try {
             return new ResponseEntity<>(voteService.getUsers(attributeId), HttpStatus.CREATED);
-        }catch (UserNotFoundException e){
-            throw new UserNotFoundException("User is not present");
+        }catch (UserNotFoundException | BadRequestException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }catch(Exception e){
-            throw new RuntimeException("Unknown exception");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
 }

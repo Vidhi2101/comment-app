@@ -3,17 +3,15 @@ package demo.services;
 
 
 import demo.entities.Post;
-import demo.requests.CreatePostRequest;
-import demo.response.GetPostResponse;
-import demo.response.PostResponse;
-
-import java.util.UUID;
-import java.util.concurrent.CompletionStage;
+import demo.model.request.CreatePostRequest;
+import demo.model.response.GetPaginatedPostResponse;
+import demo.model.response.GetPostResponse;
+import demo.model.response.PostResponse;
 
 
 public interface PostService {
 
-    Post createPost(CreatePostRequest request) ;
-    PostResponse getPostById(UUID id) throws Exception;
-    GetPostResponse getAllPosts(int pageNo, int pageSize, String sortBy, String sortDir, UUID userId, boolean includeComment);
+    PostResponse createPost(CreatePostRequest request) ;
+    GetPostResponse getPostById(String id) throws Exception;
+    GetPaginatedPostResponse getAllPosts(int pageNo, int pageSize, String sortDir, String userId, boolean includeComment);
 }

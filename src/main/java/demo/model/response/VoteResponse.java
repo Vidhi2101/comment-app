@@ -1,4 +1,4 @@
-package demo.response;
+package demo.model.response;
 
 import demo.entities.VoteType;
 import lombok.AllArgsConstructor;

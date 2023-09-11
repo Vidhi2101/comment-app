@@ -1,9 +1,14 @@
-package demo.requests.User;
+package demo.model.request;
 
 
 import demo.entities.User;
+import lombok.Data;
 
-public record CreateUserRequest(String name, String mailId) {
+@Data
+public class CreateUserRequest {
+    private String name;
+    private String mailId;
+
     public User toUser(){
         User user = new User();
         user.setUserName(name);

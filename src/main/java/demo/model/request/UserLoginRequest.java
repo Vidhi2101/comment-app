@@ -1,4 +1,4 @@
-package demo.requests.User;
+package demo.model.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

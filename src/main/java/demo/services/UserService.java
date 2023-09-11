@@ -2,20 +2,19 @@ package demo.services;
 
 
 import demo.entities.User;
-
-import java.util.UUID;
-import java.util.concurrent.CompletionStage;
+import demo.model.request.CreateUserRequest;
+import demo.model.response.UserResponse;
 
 
 public interface UserService {
 
 
-     User createUser(User user);
+     UserResponse createUser(CreateUserRequest request);
 
-     User getUserById(UUID user);
-     User getUser(String user);
+     UserResponse getUserById(String user);
+     UserResponse getUser(String user);
 
 
-//    }
+
 
 }
