@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @AllArgsConstructor
@@ -20,13 +21,15 @@ public class CommentMapper {
 
 
     public GetCommentResponse mapToResponse(Comment comment){
+        List<Vote> voteList = findVote(comment);
         return  GetCommentResponse.builder()
                 .data(comment.getMetadata())
                 .commentId(comment.getId().toString())
                 .userId(String.valueOf(comment.getUser().getId()))
                 .postId(comment.getPost().getId().toString())
-                .likeCount(countVote(comment, VoteType.LIKE.voteType))
-                .dislikeCount(countVote(comment,VoteType.DISLIKE.voteType))
+                .likeCount(countVote(voteList, VoteType.LIKE.voteType))
+                .dislikeCount(countVote(voteList,VoteType.DISLIKE.voteType))
+                .voteType(voteType(voteList,comment))
                 .userName(comment.getUser().getUserName())
                 .createdAt(comment.getCreatedAt())
                 .build();
@@ -48,9 +51,24 @@ public class CommentMapper {
 
     }
 
-    private Long countVote(Comment comment, Integer voteType) {
-        List<Vote> byAttributeId = voteRepository.findByAttributeId(comment.getId());
-        return byAttributeId.stream().filter(e -> voteType.equals(e.getVoteType())).count();
+
+
+    private  List<Vote> findVote(Comment comment){
+        return  voteRepository.findByAttributeId(comment.getId());
     }
+
+    private int countVote(List<Vote> voteList, Integer voteType) {
+        return (int)voteList.stream().filter(e -> voteType.equals(e.getVoteType())).count();
+    }
+
+
+    private int voteType(List<Vote> voteList, Comment comment) {
+        Optional<Vote> vote = voteList.stream()
+                .filter(e -> comment.getId().equals(e.getAttributeId()))
+                .filter(a -> comment.getUser().getId().equals(a.getUser().getId()))
+                .findFirst();
+        return vote.map(Vote::getVoteType).orElse(0);
+    }
+
 
 }

@@ -1,7 +1,6 @@
 package demo.services;
 
 
-import demo.entities.User;
 import demo.model.request.CreateUserRequest;
 import demo.model.response.UserResponse;
 

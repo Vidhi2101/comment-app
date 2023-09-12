@@ -47,12 +47,12 @@ public class CommentController {
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
             @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir,
-            @RequestParam(value = "commentId", required = false) String commentId,
+            @RequestParam(value = "parentId", required = false) String commentId,
             @PathVariable(value = "postId") String postId){
         try {
             GetPaginatedCommentResponse response = commentService.getCommentByPostIdAndParentId(pageNo, pageSize, sortDir, commentId, postId);
             return new  ResponseEntity<>(response, HttpStatus.CREATED);
-        }catch (PostNotFoundException e) {
+        }catch (PostNotFoundException | BadRequestException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }catch(Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");

@@ -1,6 +1,5 @@
 package demo.controller;
 
-import demo.entities.User;
 import demo.exceptions.BadRequestException;
 import demo.exceptions.DuplicateUserException;
 import demo.exceptions.UserNotFoundException;

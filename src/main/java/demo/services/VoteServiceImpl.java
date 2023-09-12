@@ -45,7 +45,6 @@ public class VoteServiceImpl implements VoteService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-    // TODO: check here if this post or comment belongs to the user which try to give the vote.
         if(!voteRepository.existsByAttributeIdAndUserId(attributeId, userId)) {
             return voteRepository.save(request.toVote(attributeId, request.getVoteType(), user));
         }else {

@@ -19,9 +19,10 @@ public class GetPostResponse {
     private String description;
     private String userName;
     private String userId;
-    private Long likeCount;
-    private Long dislikeCount;
-    private Integer commentCount;
+    private int likeCount;
+    private int dislikeCount;
+    private int commentCount;
+    private int voteType;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
     private Date createdAt;

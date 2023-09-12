@@ -43,14 +43,12 @@ public class CommentServiceImpl implements  CommentService {
        validateRequest(createCommentRequest);
         User user = userRepository.findById(convertToUUID(createCommentRequest.getUserId())).orElseThrow(() -> new UserNotFoundException("User not found"));
         Post post = postRepository.findById(convertToUUID(createCommentRequest.getPostId())).orElseThrow(() -> new PostNotFoundException("Post not found"));
-       //TODO:// check why it is saving different values than UUID in parentId field.
         return commentMapper.mapToCreateResponse(commentRepository.save(createCommentRequest.toComment(createCommentRequest.getMetaData(), post, convertToUUID(createCommentRequest.getParentCommentId()), user)));
     }
 
 
     @Override
     public GetPaginatedCommentResponse getCommentByPostIdAndParentId(int pageNo, int pageSize, String sortDir, String parentCommentId, String postId) {
-        //can add a user not found check as well
         Post post = postRepository.findById(convertToUUID(postId)).orElseThrow(() -> new PostNotFoundException("Post not found"));
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(AppConstants.DEFAULT_SORT_BY).ascending()
                 : Sort.by(AppConstants.DEFAULT_SORT_BY).descending();
@@ -83,7 +81,7 @@ public class CommentServiceImpl implements  CommentService {
             parentId = comment.get().getId();
 
             count = count - 1;
-        } while(!replyList.isEmpty() || count > 0);
+        } while(count > 0);
 
         return replyList;
     }

@@ -1,13 +1,12 @@
 package demo.entities;
 
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 
 import java.sql.Types;
 import java.util.Date;
@@ -20,9 +19,14 @@ import java.util.UUID;
 @ToString
 public class Vote {
 
+    @Column(nullable = false, name = "id")
+    @GeneratedValue
+    @Id
+    private Long id;
+
+
     @Column(name = "attribute_id")
     @JdbcTypeCode(Types.VARCHAR)
-    @Id
     @Formula("(CASE WHEN post_id IS NOT NULL THEN post_id ELSE comment_id END)")
     private UUID attributeId;
 

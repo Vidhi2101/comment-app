@@ -1,6 +1,5 @@
 package demo.model.response.mapper;
 
-import demo.AppConstants;
 import demo.entities.Comment;
 import demo.entities.Post;
 import demo.entities.Vote;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -32,6 +32,7 @@ public  class PostMapper {
 
 
     public GetPostResponse mapToResponse(Post post, List<Comment> comments){
+        List<Vote> voteList = findVote(post);
         return  GetPostResponse.builder()
                 .description(post.getMetaData())
                 .postId(post.getId().toString())
@@ -39,8 +40,9 @@ public  class PostMapper {
                 .comment(getComments(comments))
                 .commentCount(comments.size())
                 .userId(String.valueOf(post.getUser().getId()))
-                .likeCount(countVote(post, VoteType.LIKE.voteType))
-                .dislikeCount(countVote(post, VoteType.DISLIKE.voteType))
+                .likeCount(countVote(voteList, VoteType.LIKE.voteType))
+                .dislikeCount(countVote(voteList, VoteType.DISLIKE.voteType))
+                .voteType(voteType(voteList, post))
                 .createdAt(post.getCreatedAt())
                 .build();
 
@@ -52,8 +54,6 @@ public  class PostMapper {
                 .description(post.getMetaData())
                 .createdAt(post.getCreatedAt())
                 .build();
-
-
     }
 
     List<GetCommentResponse> getComments(List<Comment> comment) {
@@ -61,9 +61,21 @@ public  class PostMapper {
                 .map(commentMapper::mapToResponse).collect(Collectors.toList());
     }
 
-    private Long countVote(Post post, Integer voteType) {
-        List<Vote> byAttributeId = voteRepository.findByAttributeId(post.getId());
-        return byAttributeId.stream().filter(e -> voteType.equals(e.getVoteType())).count();
+    private  List<Vote> findVote(Post post){
+       return  voteRepository.findByAttributeId(post.getId());
+    }
+
+    private int countVote(List<Vote> voteList, Integer voteType) {
+        return (int)voteList.stream().filter(e -> voteType.equals(e.getVoteType())).count();
+    }
+
+
+    private int voteType(List<Vote> voteList, Post post) {
+        Optional<Vote> vote = voteList.stream()
+                .filter(e -> post.getId().equals(e.getAttributeId()))
+                .filter(a -> post.getUser().getId().equals(a.getUser().getId()))
+                .findFirst();
+        return vote.map(Vote::getVoteType).orElse(0);
     }
 
 }

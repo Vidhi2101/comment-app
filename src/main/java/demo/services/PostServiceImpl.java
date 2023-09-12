@@ -50,16 +50,16 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public GetPostResponse getPostById(String id) throws Exception{
+    public GetPostResponse getPostById(String id, boolean includeComment) throws Exception{
          Post post = postRepository.findById(convertToUUID(id)).orElseThrow(() -> new PostNotFoundException("Post not found "));
-          return postMapper.mapToResponse(post, commentRepository.findByParentIdAndPostId(null, post.getId()));
+        Pageable commentPage =  PageRequest.of(AppConstants.DEFAULT_PAGE_NUMBER, AppConstants.DEFAULT_PAGE_SIZE,Sort.by(AppConstants.DEFAULT_SORT_BY).descending());
+        return postMapper.mapToResponse(post, includeComment ? commentRepository.findByParentIdAndPostId(commentPage, null, post.getId()).getContent() : Collections.emptyList());
     }
 
 
     public GetPaginatedPostResponse getAllPosts(int pageNo, int pageSize, String sortDir, String userId, boolean includeComment) {
         User user = userRepository.findById(convertToUUID(userId))
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        //TODO:: fix this created_at is wrong you need to provide hibernate name not the sql column name
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(AppConstants.DEFAULT_SORT_BY).ascending()
                 : Sort.by(AppConstants.DEFAULT_SORT_BY).descending();
 
@@ -67,7 +67,6 @@ public class PostServiceImpl implements PostService {
         Pageable commentPage =  PageRequest.of(AppConstants.DEFAULT_PAGE_NUMBER, AppConstants.DEFAULT_PAGE_SIZE,sort);
 
         Page<Post>posts = postRepository.findPostsByUserId(user.getId(), pageable);
-        //TODO: make comments also a pageable response, could be possible single post can have 100 coments.
         List<GetPostResponse> listOfPosts = posts.getContent().stream()
                 .map(e -> postMapper.mapToResponse(e, includeComment ? commentRepository.findByParentIdAndPostId(commentPage, null,e.getId()).getContent() : Collections.emptyList())).collect(Collectors.toList());;
 

@@ -10,7 +10,6 @@ import demo.model.response.GetPaginatedPostResponse;
 import demo.model.response.GetPostResponse;
 import demo.model.response.PostResponse;
 import demo.services.PostService;
-import demo.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +21,11 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class PostController {
     public PostService postService;
-    public UserService userService;
 
-    public PostController(PostService postService, UserService userService) {
+
+    public PostController(PostService postService) {
         this.postService = postService;
-        this.userService = userService;
+
     }
 
     @PostMapping("/create")
@@ -44,22 +43,19 @@ public class PostController {
 
 
     @GetMapping("/getPost/{postId}")
-    public ResponseEntity<?> getAllPosts(
-            @PathVariable String postId) {
+    public ResponseEntity<?> getPostId(
+            @PathVariable String postId,
+            @RequestParam(value = "includeComment", required = false) boolean includeComment) {
         try {
-            GetPostResponse post = postService.getPostById(postId);
+            GetPostResponse post = postService.getPostById(postId, includeComment);
             return new ResponseEntity<>(post, HttpStatus.OK);
-        } catch (PostNotFoundException |BadRequestException e) {
+        } catch (PostNotFoundException | BadRequestException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
 
-    //you can write query for multiple level of comments as well. for now, have written it for one level of comment
-
-    //TODOin respone, check why last = true where it should not
-    //When soneone sends a wrong UUID formaty, it throws weird error. if time permit, change to long is better to demo purpose
     @GetMapping("/getByUserId/{userId}")
     public ResponseEntity<?> getAllPosts(
             @PathVariable String userId,

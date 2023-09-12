@@ -1,7 +1,6 @@
 package demo.services;
 
 
-import demo.entities.Comment;
 import demo.model.request.CreateCommentRequest;
 import demo.model.response.CommentResponse;
 import demo.model.response.GetCommentResponse;

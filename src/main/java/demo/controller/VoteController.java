@@ -2,6 +2,7 @@ package demo.controller;
 
 
 import demo.entities.Vote;
+import demo.entities.VoteType;
 import demo.exceptions.BadRequestException;
 import demo.exceptions.UserNotFoundException;
 import demo.model.request.AddVoteRequest;
@@ -28,7 +29,7 @@ public class VoteController {
     public ResponseEntity<?> addVote(@RequestBody AddVoteRequest addVoteRequest) throws Exception{
         try {
             Vote vote  = voteService.addVote(addVoteRequest);
-            return new ResponseEntity<>(vote.getAttributeId(), HttpStatus.CREATED);
+            return new ResponseEntity<>(VoteType.findByCode(addVoteRequest.getVoteType()), HttpStatus.CREATED);
         }catch (UserNotFoundException  | BadRequestException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }catch(Exception e){
