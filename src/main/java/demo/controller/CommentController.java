@@ -59,7 +59,7 @@ public class CommentController {
         }
     }
 
-    @GetMapping("/viewReplies/postId/{postId}/parentId/{commentId}")
+    @GetMapping("/viewReplies/post/{postId}/comment/{commentId}")
     public ResponseEntity<?> getReplies(
             @PathVariable(value = "postId", required = false) String postId,
             @RequestParam(value = "replyCount", defaultValue = "10", required = false) Integer replyCount,
