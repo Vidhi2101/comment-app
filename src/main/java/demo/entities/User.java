@@ -32,7 +32,7 @@ public class User {
     @Column(unique = true, length = 200)
     private String mail;
 
-    @Column(unique = true, length = 200)
+    @Column(length = 200)
     private String password;
 
     @CreationTimestamp

@@ -51,7 +51,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public GetPostResponse getPostById(String id, boolean includeComment) throws Exception{
-         Post post = postRepository.findById(convertToUUID(id)).orElseThrow(() -> new PostNotFoundException("Post not found "));
+        Post post = postRepository.findById(convertToUUID(id)).orElseThrow(() -> new PostNotFoundException("Post not found "));
         Pageable commentPage =  PageRequest.of(AppConstants.DEFAULT_PAGE_NUMBER, AppConstants.DEFAULT_PAGE_SIZE,Sort.by(AppConstants.DEFAULT_SORT_BY).descending());
         return postMapper.mapToResponse(post, includeComment ? commentRepository.findByParentIdAndPostId(commentPage, null, post.getId()).getContent() : Collections.emptyList());
     }
