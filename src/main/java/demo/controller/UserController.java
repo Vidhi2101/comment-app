@@ -28,8 +28,10 @@ public class UserController {
         try {
             UserResponse user = userService.createUser(createUserRequest);
             return new ResponseEntity<>(user, HttpStatus.CREATED);
-        } catch (DuplicateUserException | BadRequestException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (DuplicateUserException e) {
+            throw new DuplicateUserException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }

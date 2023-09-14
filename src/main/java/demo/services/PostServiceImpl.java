@@ -68,7 +68,9 @@ public class PostServiceImpl implements PostService {
 
         Page<Post>posts = postRepository.findPostsByUserId(user.getId(), pageable);
         List<GetPostResponse> listOfPosts = posts.getContent().stream()
-                .map(e -> postMapper.mapToResponse(e, includeComment ? commentRepository.findByParentIdAndPostId(commentPage, null,e.getId()).getContent() : Collections.emptyList())).collect(Collectors.toList());;
+                .map(e -> postMapper.mapToResponse(e, includeComment ?
+                        commentRepository.findByParentIdAndPostId(commentPage, null,e.getId()).getContent() :
+                        Collections.emptyList())).collect(Collectors.toList());;
 
         return GetPaginatedPostResponse.builder()
                 .postList(listOfPosts)

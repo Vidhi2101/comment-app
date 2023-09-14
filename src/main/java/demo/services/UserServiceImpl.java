@@ -16,6 +16,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 
@@ -30,16 +31,16 @@ public class UserServiceImpl  implements UserService{
 
     @Transactional
     @Override
-    public UserResponse createUser(CreateUserRequest request){
+    public UserResponse createUser(CreateUserRequest request) {
         try {
             if (request == null || request.getName() == null)  {
                 throw new BadRequestException("Invalid input: username is required.");
             }
-            User user = userRepository.save(request.toUser());
+            User user = userRepository.saveAndFlush(request.toUser());
             return UserMapper.mapToResponse(user);
 
-        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
-            throw new DuplicateUserException("Duplicate user");
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateUserException("Duplicate User with userName " + request.getName());
         }
     }
 
