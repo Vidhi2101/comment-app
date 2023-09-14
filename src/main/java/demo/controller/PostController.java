@@ -33,8 +33,10 @@ public class PostController {
         try {
             PostResponse post = postService.createPost(createPostRequest);
             return new ResponseEntity<>(post, HttpStatus.CREATED);
-        } catch (UserNotFoundException | BadRequestException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (UserNotFoundException e) {
+            throw new UserNotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
@@ -65,8 +67,8 @@ public class PostController {
         try {
             GetPaginatedPostResponse response = postService.getAllPosts(pageNo, pageSize, sortDir, userId, includeComment);
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (PostNotFoundException | UserNotFoundException | BadRequestException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch ( UserNotFoundException e) {
+           throw  new UserNotFoundException("User Not Found with id " + userId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }

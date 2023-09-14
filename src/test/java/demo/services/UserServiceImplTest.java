@@ -62,7 +62,7 @@ class UserServiceImplTest {
     void createUser() {
         when(createUserRequest.getName()).thenReturn(user.getUserName());
         when(createUserRequest.toUser()).thenReturn(user);
-        when(userRepository.save(Mockito.any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(userRepository.saveAndFlush(Mockito.any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
         UserResponse savedUser = userService.createUser(createUserRequest);
         log.info("savedUser : " + savedUser);
         assertThat(savedUser).isNotNull();
@@ -72,8 +72,7 @@ class UserServiceImplTest {
     void getUserById() {
         UUID uuid = UUID.randomUUID();
         user.setId(uuid);
-        when(userRepository.findById(any(UUID.class)))
-                .thenReturn(Optional.of(user));
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
         UserResponse userById = userService.getUserById(user.getId().toString());
         assertThat(userById.getUserId()).isEqualTo(uuid.toString());
 
@@ -82,17 +81,14 @@ class UserServiceImplTest {
 
     @Test
     void getUser() {
-        when(userRepository.findByUserName(any(String.class)))
-                .thenReturn(Optional.of(user));
+        when(userRepository.findByUserName(any(String.class))).thenReturn(Optional.of(user));
         UserResponse user1 = userService.getUser(user.getUserName());
         assertThat(user1.getUserName()).isEqualTo("abc123");
     }
 
     @Test
     void getUserNotFoundException() {
-        Exception exception = assertThrows(UserNotFoundException.class, () -> {
-            userService.getUser("123");
-        });
+        Exception exception = assertThrows(UserNotFoundException.class, () -> userService.getUser("123"));
         String expectedMessage = "No user found";
         String actualMessage = exception.getMessage();
 
@@ -105,12 +101,9 @@ class UserServiceImplTest {
         user1.setUserName(null);
         when(createUserRequest.getName()).thenReturn(user1.getUserName());
         when(createUserRequest.toUser()).thenReturn(user1);
-        Exception exception = assertThrows(BadRequestException.class, () -> {
-            userService.createUser(createUserRequest);
-        });
+        Exception exception = assertThrows(BadRequestException.class, () -> userService.createUser(createUserRequest));
         String expectedMessage = "Invalid input: username is required.";
         String actualMessage = exception.getMessage();
-
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
