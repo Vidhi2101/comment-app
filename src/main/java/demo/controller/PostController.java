@@ -41,7 +41,7 @@ public class PostController {
     }
 
 
-    @GetMapping("/getPost/{postId}")
+    @GetMapping("/getById/{postId}")
     public ResponseEntity<?> getPostId(
             @PathVariable String postId,
             @RequestParam(value = "includeComment", required = false) boolean includeComment) {

@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -52,7 +53,7 @@ public  class PostMapper {
                 .message(SUCCESS)
                 .postId(String.valueOf(post.getId()))
                 .description(post.getMetaData())
-                .createdAt(post.getCreatedAt())
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 

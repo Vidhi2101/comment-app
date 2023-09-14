@@ -33,7 +33,7 @@ public class VoteServiceImpl implements VoteService {
 
     @Override
     public Vote addVote(AddVoteRequest request) {
-        if(request.getAttributeId() == null) throw new BadRequestException("Request should contain attribute id");
+        if(request.getAttributeId() == null || request.getUserId() == null) throw new BadRequestException("Request should contain attribute id/userId");
         Optional<VoteType> byCode = VoteType.findByCode(request.getVoteType());
         if(!byCode.isPresent()){
             throw new BadRequestException("Vote type is incorrect");
@@ -58,9 +58,10 @@ public class VoteServiceImpl implements VoteService {
         try {
             return AppConstants.convertToUUID(id);
         }catch (IllegalArgumentException ex){
-            throw new BadRequestException("Parameter is incorrect");
+            throw new BadRequestException("Input id is incorrect");
         }
     }
+
 
 
     @Override

@@ -6,6 +6,7 @@ import demo.entities.Comment;
 import demo.entities.Post;
 import demo.entities.User;
 import demo.exceptions.BadRequestException;
+import demo.exceptions.CommentNotFoundException;
 import demo.exceptions.PostNotFoundException;
 import demo.exceptions.UserNotFoundException;
 import demo.model.response.CommentResponse;
@@ -23,10 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,10 +37,17 @@ public class CommentServiceImpl implements  CommentService {
 
 
     @Override
+    public GetCommentResponse getComment(String commentId) {
+        Comment comment = commentRepository.findById(convertToUUID(commentId)).orElseThrow(() -> new CommentNotFoundException("Comment not found "));
+        return commentMapper.mapToResponse(comment);
+    }
+
+    @Override
     public CommentResponse createComment(CreateCommentRequest createCommentRequest){
        validateRequest(createCommentRequest);
         User user = userRepository.findById(convertToUUID(createCommentRequest.getUserId())).orElseThrow(() -> new UserNotFoundException("User not found"));
         Post post = postRepository.findById(convertToUUID(createCommentRequest.getPostId())).orElseThrow(() -> new PostNotFoundException("Post not found"));
+        Comment comment = createCommentRequest.getParentCommentId() != null ? commentRepository.findById(convertToUUID(createCommentRequest.getParentCommentId())).orElseThrow(() -> new CommentNotFoundException("Parent comment  not found")) : null;
         return commentMapper.mapToCreateResponse(commentRepository.save(createCommentRequest.toComment(createCommentRequest.getMetaData(), post, convertToUUID(createCommentRequest.getParentCommentId()), user)));
     }
 
@@ -50,6 +55,7 @@ public class CommentServiceImpl implements  CommentService {
     @Override
     public GetPaginatedCommentResponse getCommentByPostIdAndParentId(int pageNo, int pageSize, String sortDir, String parentCommentId, String postId) {
         Post post = postRepository.findById(convertToUUID(postId)).orElseThrow(() -> new PostNotFoundException("Post not found"));
+        Comment comment = parentCommentId != null ? commentRepository.findById(convertToUUID(parentCommentId)).orElseThrow(() -> new CommentNotFoundException("Parent comment  not found")) : null;
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(AppConstants.DEFAULT_SORT_BY).ascending()
                 : Sort.by(AppConstants.DEFAULT_SORT_BY).descending();
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
@@ -69,11 +75,13 @@ public class CommentServiceImpl implements  CommentService {
     @Override
     public List<GetCommentResponse> getReplies(String commentId, String postId, int replyCount) {
         Post post = postRepository.findById(convertToUUID(postId)).orElseThrow(() -> new PostNotFoundException("Post not found"));
+        Comment commentx = commentId != null ? commentRepository.findById(convertToUUID(commentId)).orElseThrow(() -> new CommentNotFoundException("Parent comment  not found")) : null;
+
         int count = replyCount;
         List<GetCommentResponse> replyList = new ArrayList<>();
         UUID parentId = convertToUUID(commentId);
         do{
-            Optional<Comment> comment = commentRepository.findTopByParentIdAndPostIdOrderByCreatedAtDesc(parentId, convertToUUID(postId));
+            Optional<Comment> comment = commentRepository.findTopByParentIdAndPostIdOrderByCreatedAtAsc(parentId, convertToUUID(postId));
             if(!comment.isPresent())
                 break;
 
@@ -92,12 +100,13 @@ public class CommentServiceImpl implements  CommentService {
 
             return AppConstants.convertToUUID(id);
         }catch (IllegalArgumentException ex){
-            throw new BadRequestException("Parameter is incorrect");
+            throw new BadRequestException("Input id is incorrect");
         }
     }
+
    private void validateRequest(CreateCommentRequest createCommentRequest){
-       if(createCommentRequest == null || createCommentRequest.getPostId() == null || createCommentRequest.getUserId() == null)
-           throw new BadRequestException("Wrong request");
+       if(createCommentRequest == null || createCommentRequest.getPostId() == null || createCommentRequest.getUserId() == null || createCommentRequest.getMetaData() == null)
+           throw new BadRequestException("Wrong request: Missing input parameters");
    }
 
 }

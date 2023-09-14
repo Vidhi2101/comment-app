@@ -37,7 +37,7 @@ public class VoteController {
         }
     }
 
-    @GetMapping("/{attributeId}")
+    @GetMapping("/get/{attributeId}")
     public ResponseEntity<?> getVotes(@PathVariable String attributeId) throws Exception{
         try {
             return new ResponseEntity<>(voteService.getUsers(attributeId), HttpStatus.CREATED);

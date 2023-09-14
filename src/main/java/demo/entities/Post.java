@@ -29,7 +29,7 @@ public class Post {
     private String metaData;
 
     @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id",nullable = false, referencedColumnName = "id")
     private User user;
 
     @CreationTimestamp

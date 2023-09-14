@@ -25,15 +25,16 @@ public class Vote {
     private Long id;
 
 
-    @Column(name = "attribute_id")
+    @Column(name = "attribute_id", nullable = false)
     @JdbcTypeCode(Types.VARCHAR)
     @Formula("(CASE WHEN post_id IS NOT NULL THEN post_id ELSE comment_id END)")
     private UUID attributeId;
 
     @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", nullable= false, referencedColumnName = "id")
     private User user;
 
+    @Column(name = "vote_type", nullable = false)
     private int voteType;
 
     @CreationTimestamp

@@ -52,7 +52,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public GetPostResponse getPostById(String id, boolean includeComment) throws Exception{
         Post post = postRepository.findById(convertToUUID(id)).orElseThrow(() -> new PostNotFoundException("Post not found "));
-        Pageable commentPage =  PageRequest.of(AppConstants.DEFAULT_PAGE_NUMBER, AppConstants.DEFAULT_PAGE_SIZE,Sort.by(AppConstants.DEFAULT_SORT_BY).descending());
+        Pageable commentPage =  PageRequest.of(AppConstants.DEFAULT_PAGE_NUMBER, AppConstants.DEFAULT_PAGE_SIZE,Sort.by(AppConstants.DEFAULT_SORT_BY).ascending());
         return postMapper.mapToResponse(post, includeComment ? commentRepository.findByParentIdAndPostId(commentPage, null, post.getId()).getContent() : Collections.emptyList());
     }
 
@@ -83,7 +83,7 @@ public class PostServiceImpl implements PostService {
         try {
             return AppConstants.convertToUUID(id);
         }catch (IllegalArgumentException ex){
-            throw new BadRequestException("Parameter is incorrect");
+            throw new BadRequestException("Input id is incorrect");
         }
         catch (Exception e){
             throw  new RuntimeException();
@@ -91,8 +91,10 @@ public class PostServiceImpl implements PostService {
     }
 
     private void validateRequest(CreatePostRequest request){
-        if(request.getUserId() == null)
+        if(request == null || request.getUserId() == null)
             throw new BadRequestException("UserId cannot be null");
+        if(request.getMeta() == null)
+            throw new BadRequestException("You need to enter some description");
     }
 }
 

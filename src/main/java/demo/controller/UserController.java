@@ -23,7 +23,6 @@ public class UserController {
     }
 
 
-    //TODO: check why it is not throwing DuplicateUser exception?
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest createUserRequest) {
         try {

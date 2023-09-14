@@ -38,7 +38,6 @@ public class UserServiceImpl  implements UserService{
             User user = userRepository.save(request.toUser());
             return UserMapper.mapToResponse(user);
 
-            //TODO: its not throwing duplicate exception, fix me
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             throw new DuplicateUserException("Duplicate user");
         }
@@ -60,7 +59,7 @@ public class UserServiceImpl  implements UserService{
         try {
             return AppConstants.convertToUUID(id);
         }catch (IllegalArgumentException ex){
-            throw new BadRequestException("Parameter is incorrect");
+            throw new BadRequestException("Input id is incorrect");
         }
     }
 

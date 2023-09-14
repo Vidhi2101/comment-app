@@ -21,7 +21,7 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
          Comment save(Comment comment);
 
-        Optional<Comment> findTopByParentIdAndPostIdOrderByCreatedAtDesc(UUID parentId, UUID postId);
+        Optional<Comment> findTopByParentIdAndPostIdOrderByCreatedAtAsc(UUID parentId, UUID postId);
 
 
 }

@@ -33,7 +33,7 @@ public class Comment {
     private String metadata;
 
     @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "post_id", referencedColumnName = "id")
+    @JoinColumn(name = "post_id",nullable = false, referencedColumnName = "id")
     private Post post;
 
     @CreationTimestamp
@@ -41,7 +41,7 @@ public class Comment {
     private Date createdAt;
 
     @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "id")
     private User user;
 
 
