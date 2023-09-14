@@ -14,7 +14,7 @@ Maven clean install
 
 
 ## Run
-mvn clean install 
+Use Intellije run
 
 ## HLD
 https://docs.google.com/document/d/1_2vrJEBDlRY3_iIjiHsq2U9GPhINC_a0u6f4nol6qB4/edit?usp=sharing
